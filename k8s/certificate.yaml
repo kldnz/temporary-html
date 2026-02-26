@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: webpage-upload-tls
+  namespace: webpage-upload
+spec:
+  secretName: webpage-upload-tls
+  issuerRef:
+    # CHANGE THIS to your ClusterIssuer or Issuer name
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    # CHANGE THIS to your domain
+    - upload.example.com

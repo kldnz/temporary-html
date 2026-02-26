@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webpage-upload
+  namespace: webpage-upload
+  labels:
+    app: webpage-upload
+  annotations:
+    # Traefik annotations
+    kubernetes.io/ingress.class: traefik
+
+    # IP Whitelist - CHANGE THIS to your allowed IPs
+    # Comma-separated list of IPs or CIDR ranges
+    traefik.ingress.kubernetes.io/router.middlewares: webpage-upload-ip-whitelist@kubernetescrd
+
+    # Enable TLS
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+    - hosts:
+        # CHANGE THIS to your domain
+        - upload.example.com
+      secretName: webpage-upload-tls
+  rules:
+    # CHANGE THIS to your domain
+    - host: upload.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: webpage-upload
+                port:
+                  number: 80

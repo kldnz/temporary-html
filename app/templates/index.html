@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webpage Upload</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        input[type="file"] {
+            padding: 10px 0;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background: white;
+        }
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .or-divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #888;
+            position: relative;
+        }
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #ddd;
+        }
+        .or-divider::before { left: 0; }
+        .or-divider::after { right: 0; }
+        .success-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .success-box a {
+            color: #155724;
+            font-weight: bold;
+            word-break: break-all;
+        }
+        .info {
+            background: #e7f3ff;
+            border: 1px solid #b6d4fe;
+            color: #084298;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .curl-example {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .curl-example code {
+            color: #2ecc71;
+        }
+        .note {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Webpage Upload</h1>
+
+        {% if success %}
+        <div class="success-box">
+            <strong>Success!</strong> Your page has been uploaded.<br><br>
+            <strong>Link:</strong> <a href="{{ link }}" target="_blank">{{ link }}</a><br><br>
+            {% if expires_at %}
+            <strong>Expires:</strong> {{ time_remaining }}
+            {% else %}
+            <strong>Expires:</strong> Never (indefinite)
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="html_content">Paste HTML Content:</label>
+                <textarea name="html_content" id="html_content" placeholder="<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+</body>
+</html>"></textarea>
+                <p class="note">Maximum size: {{ max_size_mb }}MB</p>
+            </div>
+
+            <div class="or-divider">OR</div>
+
+            <div class="form-group">
+                <label for="html_file">Upload HTML File:</label>
+                <input type="file" name="html_file" id="html_file" accept=".html,.htm,text/html">
+            </div>
+
+            <div class="form-group">
+                <label for="expiration">Link Valid For:</label>
+                <select name="expiration" id="expiration">
+                    <option value="1">1 Day</option>
+                    <option value="7" selected>7 Days</option>
+                    <option value="30">30 Days</option>
+                    <option value="0">Indefinitely</option>
+                </select>
+            </div>
+
+            <button type="submit">Upload & Generate Link</button>
+        </form>
+
+        <div class="info">
+            <strong>How it works:</strong>
+            <ul>
+                <li>Paste HTML or upload an HTML file</li>
+                <li>Select how long the link should be valid</li>
+                <li>Get a shareable link to your page</li>
+                <li>Expired pages are automatically deleted</li>
+            </ul>
+        </div>
+
+        <div class="curl-example">
+            <strong>Upload via curl:</strong><br><br>
+            <code># Upload a file (7 days expiration)</code><br>
+            curl -X POST -F "html_file=@mypage.html" -F "expiration=7" {{ base_url }}/api/upload<br><br>
+            <code># Upload from stdin (1 day expiration)</code><br>
+            echo "&lt;h1&gt;Hello&lt;/h1&gt;" | curl -X POST -F "html_file=@-;filename=page.html" -F "expiration=1" {{ base_url }}/api/upload<br><br>
+            <code># Indefinite (expiration=0)</code><br>
+            curl -X POST -F "html_file=@mypage.html" -F "expiration=0" {{ base_url }}/api/upload
+        </div>
+    </div>
+</body>
+</html>
